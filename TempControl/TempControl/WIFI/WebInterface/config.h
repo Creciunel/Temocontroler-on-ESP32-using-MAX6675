@@ -1,4 +1,6 @@
 #pragma once
+// for ESP32 DEVKIT V1
+
 // set value of SSID and password
 #define AP_SSID "**"
 #define AP_PASS "**"
