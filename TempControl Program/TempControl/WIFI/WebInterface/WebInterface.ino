@@ -1,134 +1,103 @@
 #include "config.h"
+#include "function.h"
 
-TaskHandle_t Task0;
+TaskHandle_t Task0, Task1;
 
-GyverPortal ui;
-Display display;
 GyverMAX6675< CLK_PIN, DATA_PIN, CS_PIN > sens;
-// LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-struct Flag {
-  uint8_t bit_map_flag, wifi_connect_flag, start_heating_flag;
-} flag{ .bit_map_flag = 0, .wifi_connect_flag = 0, .start_heating_flag = 0 };
+extern Display display;
+extern GyverPortal ui;
+extern Flag flag;
+extern Value val;
+extern const char* names[];
 
-struct Value {
-  int temp, SetTemp;
-} val{ .temp = 0, .SetTemp = 0 };
-
-struct Time {
-  unsigned long startMillis;
-} times{ .startMillis = 0 };
-
-const char* names[] = {
-  "temp", "humidity", "kek"
-};
+extern Time times;
+extern uint32_t dates[];
 
 void core0(void* pvParameters) {
   // ==========SETUP===========
+  // init UART with 115200 bout rate
+  Serial.begin(115200);
+  // init pin
+  setPin();
+  // init displaz
+  display.init();
+  vTaskDelay(100 / portTICK_PERIOD_MS);
+  // print IP
+  if (flag.wifi_connect_flag) {
+    display.printIP(WiFi.localIP());
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+  }
 
+  val.lastReal = 0;
+  val.lastSet = 0;
+
+  val.actualReal = 0;
+  val.actualSet = 0;
   // ============LOOP===========
   for (;;) {
 
-    if (flag.wifi_connect_flag) {
-      if (!flag.bit_map_flag) {
-        display.bitMap();
-        flag.bit_map_flag = 1;
-      }
-      if (millis() - interval2 > times.startMillis) {
-        if (sens.readTemp()) {
-          val.temp = sens.getTempInt();
-          display.printTemp(val.temp);
-          vTaskDelay(1000);
-        }
-        times.startMillis = millis();
-      }
+    if (!flag.bit_map_flag) {
+      display.bitMap();
+      flag.bit_map_flag = 1;
     }
-    vTaskDelay(200 / portTICK_PERIOD_MS);
+
+    if (sens.readTemp()) {
+
+      val.actualReal = sens.getTempInt();
+
+      // if (val.actualReal != val.lastReal || val.actualSet != val.lastSet) {
+
+      display.update();
+      display.printTemp(val.actualReal);
+      display.printSetTemp(val.actualSet);
+
+
+      val.lastSet = val.actualSet;
+      val.lastReal = val.actualReal;
+      // }
+    }
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
-// build website page
-void build() {
-  GP.BUILD_BEGIN();
-  GP.THEME(GP_DARK);
 
-  GP.BUTTON("btn1", "I'm connect");
-
-  GP.TITLE("Temperature control", "t1");
-  GP.HR();
-
-  GP.AJAX_PLOT_DARK("plot3", names, 3, 20, 1000);
-
-  GP.LABEL("Real temperature: ");
-  GP.LABEL("NAN", "val");
-  GP.BREAK();
-
-  GP.NUMBER("num", "Set value", val.SetTemp);
-  GP.BREAK();
-
-  GP.BUTTON("btn", "Start heating");
-
-  GP.BUILD_END();
-}
-
-void action(void) {
-  // if component was prest
-  if (ui.click()) {
-    // check component and update value
-    if (ui.clickInt("num", val.SetTemp)) {
-      Serial.print("Number: ");
-      Serial.println(val.SetTemp);
-    }
-
+void displayGraph(void* pvParameters) {
+  val.counter = 0;
+  // ============LOOP===========
+  for (;;) {
     if (flag.start_heating_flag) {
-      if (ui.update("plot3")) {
-        int answ[] = { val.temp, val.SetTemp, random(200) };
-        ui.answer(answ, 3);
-      }
-    }
+      val.counter++;
 
-    if (ui.click("btn1")) {
-      Serial.println("Button click Temp= " + String(val.temp));
-      digitalWrite(GREEN_LED_PIN, !digitalRead(GREEN_LED_PIN));
-    }
+      GPaddInt(val.actualReal, val.arr[0], NUMBER_OF_TEMP_VALUE);
+      GPaddInt(val.actualSet, val.arr[1], NUMBER_OF_TEMP_VALUE);
+      GPaddUnixS(5, dates, NUMBER_OF_TEMP_VALUE);
 
-    if (ui.click("btn")) {
-      Serial.println("Button start");
-      digitalWrite(RED_LED_PIN, !digitalRead(RED_LED_PIN));
-      flag.start_heating_flag = 1;
+      list += "\n" + String(val.actualReal) + ", " + String(val.actualSet);
     }
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+   
   }
 }
+
 
 void setup() {
-  // init core 0
-  xTaskCreatePinnedToCore(core0, "Task0", 12000, NULL, 1, &Task0, 0);
-  // init time in firct line
-  times.startMillis = millis();
-  // init UART with 115200 bout rate
-  Serial.begin(115200);
-  
-  display.init();
   // init WIFI
-  delay(1000);
-
   WiFi.mode(WIFI_STA);
   WiFi.begin(AP_SSID, AP_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+    // Serial.print(".");
   }
-  Serial.println(WiFi.localIP());
   // initialize the lcd
-  display.printIP(WiFi.localIP());
-  // print IP
+  flag.wifi_connect_flag = 1;
 
-  // init pin
-  pinMode(PWM_PIN, OUTPUT);
-  pinMode(GREEN_LED_PIN, OUTPUT);
-  pinMode(RED_LED_PIN, OUTPUT);
-  // set pin
-  digitalWrite(GREEN_LED_PIN, LOW);
-  digitalWrite(RED_LED_PIN, LOW);
+  // init core 0
+  xTaskCreatePinnedToCore(core0, "Task0", 10000, NULL, 1, &Task0, 0);
+  xTaskCreatePinnedToCore(displayGraph, "Task1", 10000, NULL, 1, &Task1, 0);
+
+  //  init graph date
+  dates[NUMBER_OF_TEMP_VALUE - 1] = GPunix(2023, 10, 9, 0, 0, 0, 0);
 
   // conetct and start site info
   ui.attachBuild(build);
@@ -138,4 +107,6 @@ void setup() {
 
 void loop() {
   ui.tick();
+
+  vTaskDelay(1 / portTICK_PERIOD_MS);
 }
