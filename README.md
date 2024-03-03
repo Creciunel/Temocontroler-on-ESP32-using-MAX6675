@@ -4,7 +4,7 @@
 
 <p>The device is capable of controlling a load connected to 220V.</p>
 
-<p align="center"><img src="img/WebInterface2.png" alt="Web Interface" width="600"></p>
+<p align="center"><img src="img/WebInterface2.png" alt="Web Interface" width="150"></p>
 
 <p>It includes a web interface that can be accessed on the local Wi-Fi network, hosted on an ESP32 microcontroller.</p>
 
