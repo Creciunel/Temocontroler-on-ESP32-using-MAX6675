@@ -8,7 +8,7 @@
 
 <p>It includes a web interface that can be accessed on the local Wi-Fi network, hosted on an ESP32 microcontroller.</p>
 
-<p>Actual cod is in folder v.0.1 <a href="V.0.1/MCUCod/MCUCod.ino"> MCUCod </a></p>
+<p>Actual cod is in folder v.0.1 <a href="Software/V.0.1/MCUCod/MCUCod.ino"> MCUCod </a></p>
 
 <p>The circuit and PCB design can be found on EasyEDA:</p>
 

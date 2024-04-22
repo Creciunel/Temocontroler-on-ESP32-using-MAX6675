@@ -1,4 +1,5 @@
-#include "screenMethods.h"
+#include <Arduino.h>
+#include "screen.h"
 
 TaskHandle_t DisplayGraphTask, ControlTemperatureTask;
 
@@ -6,12 +7,14 @@ extern GyverPortal ui;
 
 Data dataT;
 
-void displayTask(void* pvParameters) {
-  Screen* screen = (Screen*)pvParameters;
-  screen->initialize();  // Inițializarea ecranului
+void displayTask(void *pvParameters)
+{
+  Screen *screen = (Screen *)pvParameters;
+  screen->initialize(); // Inițializarea ecranului
   Serial.println(WiFi.localIP());
 
-  while (1) {
+  while (1)
+  {
     // Afișați textul dorit pe ecran
     screen->clearDisplay();
     screen->printText(30, 0, 1, "Temperatura");
@@ -23,15 +26,18 @@ void displayTask(void* pvParameters) {
 
     // screen->printText(0, 40, 1, String(WiFi.localIP()));
     // Adăugați aici orice alte acțiuni pentru task-ul de afișare
-    vTaskDelay(2000 / portTICK_PERIOD_MS);  // Afișați textul timp de 2 secunde
+    vTaskDelay(2000 / portTICK_PERIOD_MS); // Afișați textul timp de 2 secunde
   }
 }
 
-void displayGraph(void* pvParameters) {
+void displayGraph(void *pvParameters)
+{
 
   // ============LOOP===========
-  for (;;) {
-    if (dataT.flag[START_FLAG_INDEX]) {
+  for (;;)
+  {
+    if (dataT.flag[START_FLAG_INDEX])
+    {
       GPaddInt(dataT.K_Temp, dataT.temp[0], NUMBER_OF_TEMP_VALUE);
       GPaddInt(dataT.set_Temp, dataT.temp[1], NUMBER_OF_TEMP_VALUE);
       GPaddUnixS(5, dataT.dates, NUMBER_OF_TEMP_VALUE);
@@ -43,7 +49,8 @@ void displayGraph(void* pvParameters) {
   }
 }
 
-void PIDControl(void* pvParameters) {
+void PIDControl(void *pvParameters)
+{
   dataT.Kp = KP_VALUE;
   dataT.Ki = KI_VALUE;
   dataT.Kd = KD_VALUE;
@@ -52,8 +59,10 @@ void PIDControl(void* pvParameters) {
   dataT.setLimits(MIN_PID_VALUE, MAX_PID_VALUE);
   dataT.setDt(PERIOD_VALUE);
 
-  for (;;) {
-    if (dataT.flag[START_FLAG_INDEX]) {
+  for (;;)
+  {
+    if (dataT.flag[START_FLAG_INDEX])
+    {
       dataT.input = dataT.readKTemp();
       digitalWrite(PWM_PIN, dataT.getResult());
     }
@@ -61,12 +70,14 @@ void PIDControl(void* pvParameters) {
   }
 }
 
-void setup() {
+void setup()
+{
   Serial.begin(9600);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(AP_SSID, AP_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     // Serial.print(".");
   }
@@ -82,7 +93,8 @@ void setup() {
   ui.start();
 }
 
-void loop() {
+void loop()
+{
   ui.tick();
   vTaskDelay(1 / portTICK_PERIOD_MS);
 }
