@@ -23,4 +23,4 @@ jobs:
       
       # Build the PlatformIO project
       - name: Build PlatformIO project
-        run: cd Software/Electrospining && pio run
+        run: cd Software/Actual code/Temperature-control/ && pio run
