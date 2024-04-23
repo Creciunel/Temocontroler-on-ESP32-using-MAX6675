@@ -1,12 +1,10 @@
 #pragma once
 // for ESP32 NODEMCU
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef TEMPERATURE_H
+#define TEMPERATURE_H
 
 #include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -14,27 +12,11 @@
 #include "GyverPID.h"
 #include <GyverPortal.h>
 
-#define SCREEN_WIDTH 128     // OLED display width, in pixels
-#define SCREEN_HEIGHT 64     // OLED display height, in pixels
-#define OLED_RESET -1        // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C  ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-// pini de indicare
-#define LED_PIN 2
-#define LCD_SCL 22
-#define LCD_SDA 21
-
-// set value of SSID and password
-#define AP_SSID "**"
-#define AP_PASS "**"
 
 // Pinii modulului MAX6675K
 #define CLK_PIN 14
 #define DATA_PIN 12
 #define CS_PIN 15
-
-// pin de control
-#define PWM_PIN 23
-#define ZD_PIN 36
 
 #define NTC_PIN 39
 
@@ -54,8 +36,17 @@
 #define PERIOD_VALUE 20
 #define MIN_PID_VALUE 0
 #define MAX_PID_VALUE 1
+
 // FLAGS
 #define START_FLAG_INDEX 0
+
+class Data : public GyverPID
+{
+    Data();
+    float readKTemp();
+    float readNTCTemp();
+};
+
 
 
 #endif  // CONFIG_H

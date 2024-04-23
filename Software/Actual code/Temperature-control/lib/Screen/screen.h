@@ -3,8 +3,8 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#include "config.h"
-#include "esp32-hal-gpio.h"
+#include <Arduino.h>
+// #include "esp32-hal-gpio.h"
 #include <GyverMAX6675.h>
 #include "GyverPID.h"
 #include <GyverPortal.h>
@@ -25,11 +25,6 @@
 // set value of SSID and password
 #define AP_SSID "**"
 #define AP_PASS "**"
-
-// Pinii modulului MAX6675K
-#define CLK_PIN 14
-#define DATA_PIN 12
-#define CS_PIN 15
 
 // pin de control
 #define PWM_PIN 23
@@ -55,17 +50,5 @@
 #define MAX_PID_VALUE 1
 // FLAGS
 #define START_FLAG_INDEX 0
-
-class Data : public GyverPID
-{
-};
-class Screen : public Adafruit_SSD1306
-{
-    Screen(int8_t reset_pin);
-    void initialize();
-    void printText(uint8_t x, uint8_t y, uint8_t size, String text);
-    void build();
-    void action(void);
-};
 
 #endif // CONFIG_H
