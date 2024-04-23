@@ -27,23 +27,9 @@
 #define PIN_RESET_WIFI_S3 0
 #endif
 
-class PersonalServer : WiFiManager
+class PersonalServer : public WiFiManager
 {
 public:
-    PersonalServer();
-    void initWifiManager(uint8_t timeout = 120);
-    void saveConfigFile(void);
-    int loadConfigFile(void);
-    void saveConfigCallback();
-    void configModelCallback(WiFiManager *myWiFiManager);
-
-private:
-    bool res;
-    bool shouldSaveConfig = false;
-    char testString[50];
-    int testNumber;
-
-    // uint8_t timeOut;
 #ifdef ESP32_DEVKIT_C_V4
     uint8_t pinResetWifi = PIN_RESET_WIFI;
 #endif
@@ -51,6 +37,22 @@ private:
 #ifdef ESP32_S3_DEVKIT_C
     uint8_t pinResetWifi = PIN_RESET_WIFI_S3;
 #endif
+
+    PersonalServer(uint8_t timeout);
+    void initWifiManager();
+    void saveConfigFile(void);
+    int loadConfigFile(void);
+    void saveConfigCallback();
+    void configModelCallback(WiFiManager *myWiFiManager);
+    void checkConfigPortalRequest();
+
+private:
+    bool res;
+    bool shouldSaveConfig = false;
+    char testString[50];
+    int testNumber;
+    char SSID[50];
+    char PASS[50];
 };
 
 #endif // PERSONALSERVER_H

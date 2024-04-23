@@ -1,9 +1,8 @@
 #include "personalserver.h"
 #include <functional>
 
-void PersonalServer::initWifiManager(uint8_t timeout)
+PersonalServer::PersonalServer(uint8_t timeout = 120)
 {
-
     pinMode(pinResetWifi, INPUT_PULLUP); // pin is conetet to 3.3V
 
     bool forceConfig = false;
@@ -159,4 +158,12 @@ void PersonalServer::configModelCallback(WiFiManager *myWiFiManager)
 {
     Serial.println(myWiFiManager->getConfigPortalSSID());
     Serial.println(WiFi.softAPIP());
+}
+
+void PersonalServer::checkConfigPortalRequest()
+{
+    if (digitalRead(pinResetWifi) == LOW)
+    {
+        startConfigPortal("OnDemandAP");
+    }
 }

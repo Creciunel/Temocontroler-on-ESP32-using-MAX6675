@@ -6,6 +6,7 @@
 
 #include "personalserver.h"
 
+PersonalServer ps(120); // Set Config Portal Timeout
 
 void setup()
 {
@@ -14,5 +15,5 @@ void setup()
 
 void loop()
 {
- 
+  ps.checkConfigPortalRequest();
 }
