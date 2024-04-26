@@ -13,9 +13,17 @@
 #include <GyverPortal.h>
 
 // Pinii modulului MAX6675K
-#define CLK_PIN 14
-#define DATA_PIN 12
-#define CS_PIN 15
+#ifdef ESP32_DEVKIT_C_V4
+#define CLK_PIN 18
+#define DATA_PIN 19 //MISO
+#define CS_PIN 5
+#endif
+
+#ifdef BOARD_HAS_PSRAM
+#define CLK_PIN 30
+#define DATA_PIN 31
+#define CS_PIN 29
+#endif
 
 #define NTC_PIN 39
 

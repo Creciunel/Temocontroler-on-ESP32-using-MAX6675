@@ -27,4 +27,4 @@ jobs:
 
       # Copy .elf and .bin files to root directory
       - name: Copy ELF and BIN files
-        run: cp Software/ActualCode/Temperature-control/.pio/build/az-delivery-devkit-v4/firmware.* .
+        run: cp Software/ActualCode/Temperature-control/.pio/build/az-delivery-devkit-v4/firmware.* Software/ActualCode/Temperature-control/
