@@ -3,9 +3,9 @@ name: PlatformIO CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
 
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     # Checkout repository
+      # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
       
@@ -23,4 +23,8 @@ jobs:
       
       # Build the PlatformIO project
       - name: Build PlatformIO project
-        run: cd Software/Actual code/Temperature-control/ && pio run
+        run: cd Software/ActualCode/Temperature-control/ && pio run
+
+      # Copy .elf and .bin files to root directory
+      - name: Copy ELF and BIN files
+        run: cp Software/ActualCode/Temperature-control/.pio/build/az-delivery-devkit-v4/firmware.* .

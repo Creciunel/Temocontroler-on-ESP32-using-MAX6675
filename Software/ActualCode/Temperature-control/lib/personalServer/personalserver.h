@@ -23,7 +23,7 @@
 #define PIN_RESET_WIFI 0
 #endif
 
-#ifdef ESP32_S3_DEVKIT_C
+#ifdef BOARD_HAS_PSRAM
 #define PIN_RESET_WIFI_S3 0
 #endif
 
@@ -34,7 +34,7 @@ public:
     uint8_t pinResetWifi = PIN_RESET_WIFI;
 #endif
 
-#ifdef ESP32_S3_DEVKIT_C
+#ifdef BOARD_HAS_PSRAM
     uint8_t pinResetWifi = PIN_RESET_WIFI_S3;
 #endif
 
